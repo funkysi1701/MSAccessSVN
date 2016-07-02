@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using dao;
+using Microsoft.Office.Interop.Access.Dao;
+using Microsoft.Office.Interop.Access;
 
 namespace AccessIO {
 //interesting access page
@@ -24,13 +25,13 @@ namespace AccessIO {
 
         private void LoadLocaleStrings() {
         
-            FieldInfo[] fields = typeof(dao.LanguageConstants).GetFields(BindingFlags.Public | BindingFlags.Static);
-            foreach (FieldInfo field in fields) {
-                string code = LangCode(field.GetValue(null).ToString());
-                if (!locales.ContainsKey(code))
-                    locales.Add(code, field.Name);
-            }
-            locales.Remove(dao.LanguageConstants.dbLangNordic);  //Only for Jet 1.0
+            //FieldInfo[] fields = typeof(LanguageConstants).GetFields(BindingFlags.Public | BindingFlags.Static);
+            //foreach (FieldInfo field in fields) {
+            //    string code = LangCode(field.GetValue(null).ToString());
+            //    if (!locales.ContainsKey(code))
+            //        locales.Add(code, field.Name);
+            //}
+            //locales.Remove(LanguageConstants.dbLangNordic);  //Only for Jet 1.0
         }
 
         private string LangCode(string langDescription) {

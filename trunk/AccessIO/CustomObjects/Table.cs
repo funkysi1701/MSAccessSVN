@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using dao;
+using Microsoft.Office.Interop.Access.Dao;
 
 namespace AccessIO {
     /// <summary>
@@ -10,7 +10,7 @@ namespace AccessIO {
     /// </summary>
     public class Table : CustomObject {
 
-        private dao.TableDef tableDef;
+        private Microsoft.Office.Interop.Access.Dao.TableDef tableDef;
         private List<Field> Fields;
 
         private bool AllowDataLost { 
@@ -23,7 +23,7 @@ namespace AccessIO {
         /// </summary>
         public bool HasData {
             get {
-                dao.Database db = App.Application.CurrentDb();
+                Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
                 if (db == null)
                     return false;
                 else {
@@ -52,9 +52,9 @@ namespace AccessIO {
                 return this.tableDef;
             }
             set {
-                if (value != null && !(value is dao.TableDef))
-                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(dao.TableDef).Name));
-                this.tableDef = (dao.TableDef)value;
+                if (value != null && !(value is Microsoft.Office.Interop.Access.Dao.TableDef))
+                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(Microsoft.Office.Interop.Access.Dao.TableDef).Name));
+                this.tableDef = (Microsoft.Office.Interop.Access.Dao.TableDef)value;
             }
         }
 
@@ -83,7 +83,7 @@ namespace AccessIO {
         /// <param name="objectType">Access object type</param>
         public Table(AccessApp app, string name, ObjectType objectType) : base(app, name, objectType) {
             //TODO: Ver posibilidad de no instanciar tableDef hasta el método Load (habría que cambiar el método Save)
-            dao.Database db = app.Application.CurrentDb();
+            Microsoft.Office.Interop.Access.Dao.Database db = app.Application.CurrentDb();
             if (ExistsTableDef(db, name.ToString()))
                 tableDef = app.Application.CurrentDb().TableDefs[name];
             else
@@ -100,9 +100,9 @@ namespace AccessIO {
             
             MakePath(System.IO.Path.GetDirectoryName(fileName));
 
-            dao.DBEngine dbEngine = new dao.DBEngine();
-            dao.Database db = dbEngine.OpenDatabase(App.FileName);
-            dao.TableDef tbDef = db.TableDefs[Name];
+            Microsoft.Office.Interop.Access.Dao.DBEngine dbEngine = new Microsoft.Office.Interop.Access.Dao.DBEngine();
+            Microsoft.Office.Interop.Access.Dao.Database db = dbEngine.OpenDatabase(App.FileName);
+            Microsoft.Office.Interop.Access.Dao.TableDef tbDef = db.TableDefs[Name];
 
             using (StreamWriter sw = new StreamWriter(fileName)) {
                 ExportObject export = new ExportObject(sw);
@@ -129,14 +129,14 @@ namespace AccessIO {
                 propColl.TryWriteProperty(export, "OrderBy");
 
                 export.WriteBegin("Fields");
-                foreach (dao.Field field in tbDef.Fields) {
+                foreach (Microsoft.Office.Interop.Access.Dao.Field field in tbDef.Fields) {
                     export.WriteObject(new Field(field));
 	            }
                 export.WriteEnd();      //End Fields
                 export.WriteBegin("Indexes");
                 //TODO: Add new option menu to ignore linked tables errors if the linked document do not exist
                 //      Check if the linked document exists before iterate the indexes collection
-                foreach (dao.Index daoIndex in tbDef.Indexes) {
+                foreach (Microsoft.Office.Interop.Access.Dao.Index daoIndex in tbDef.Indexes) {
                     export.WriteObject(new Index(daoIndex));
                 }
                 export.WriteEnd();  //End Indexes
@@ -157,7 +157,7 @@ namespace AccessIO {
                 if (string.Compare(this.Name, objName, true) != 0)
                     this.Name = objName;
 
-                dao.Database db = App.Application.CurrentDb();
+                Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
                 bool tableExists = false;
                 string tempTableName = this.Name;
                 //if (ExistsTableDef(db, this.Name)) {
@@ -190,7 +190,7 @@ namespace AccessIO {
                     //read fields
                     import.ReadLine(); //Read the 'Begin Fields' line
                     while (!import.IsEnd) {
-                        dao.Field fld = ReadField(import);
+                        Microsoft.Office.Interop.Access.Dao.Field fld = ReadField(import);
                         if (!isLinkedTable)
                             tableDef.Fields.Append(fld);
                     }
@@ -201,7 +201,7 @@ namespace AccessIO {
                         if (import.IsBegin) {
                             import.ReadLine();  //Read the 'Begin Index' line.
                             while (!import.IsEnd) {
-                                dao.Index idx = ReadIndex(import);
+                                Microsoft.Office.Interop.Access.Dao.Index idx = ReadIndex(import);
                                 if (idx == null)
                                     break;
                                 tableDef.Indexes.Append(idx);
@@ -222,11 +222,11 @@ namespace AccessIO {
                     //manage table relations
                     if (tableExists) {
                         List<Relation> relationsList = new List<Relation>();
-                        foreach (dao.Relation relation in GetTableRelations(db)) {
-                            dao.Relation newRelation = db.CreateRelation(relation.Name, relation.Table, relation.ForeignTable, relation.Attributes);
+                        foreach (Microsoft.Office.Interop.Access.Dao.Relation relation in GetTableRelations(db)) {
+                            Microsoft.Office.Interop.Access.Dao.Relation newRelation = db.CreateRelation(relation.Name, relation.Table, relation.ForeignTable, relation.Attributes);
                             //try { newRelation.PartialReplica = relation.PartialReplica; } catch { }     //Accessing this property causes an exception ¿?
-                            foreach (dao.Field field in relation.Fields) {
-                                dao.Field newField = newRelation.CreateField();
+                            foreach (Microsoft.Office.Interop.Access.Dao.Field field in relation.Fields) {
+                                Microsoft.Office.Interop.Access.Dao.Field newField = newRelation.CreateField();
                                 newField.Name = field.Name;
                                 newField.ForeignName = field.ForeignName;
                                 newRelation.Fields.Append(newField);
@@ -240,7 +240,7 @@ namespace AccessIO {
                         db.TableDefs[tempTableName].Name = this.Name;
                         db.TableDefs.Refresh();
 
-                        foreach (dao.Relation relation in relationsList) {
+                        foreach (Microsoft.Office.Interop.Access.Dao.Relation relation in relationsList) {
                             try {
                                 db.Relations.Append(relation);
                             } catch { 
@@ -274,16 +274,16 @@ namespace AccessIO {
             propColl.AddOptionalProperty(props, "OrderBy", DataTypeEnum.dbText);
         }
 
-        private dao.Field ReadField(ImportObject import) {
+        private Microsoft.Office.Interop.Access.Dao.Field ReadField(ImportObject import) {
             Field field = new Field(tableDef.CreateField());
             field.LoadProperties(tableDef, import);
             Fields.Add(field);
-            return (dao.Field)field.DaoObject;
+            return (Microsoft.Office.Interop.Access.Dao.Field)field.DaoObject;
         }
 
-        private dao.Index ReadIndex(ImportObject import) {
+        private Microsoft.Office.Interop.Access.Dao.Index ReadIndex(ImportObject import) {
             
-            dao.Index idx = tableDef.CreateIndex();
+            Microsoft.Office.Interop.Access.Dao.Index idx = tableDef.CreateIndex();
             Dictionary<string, object> props = import.ReadProperties();
             idx.Name = Convert.ToString(props["Name"]);
             idx.Primary = Convert.ToBoolean(props["Primary"]);
@@ -293,29 +293,29 @@ namespace AccessIO {
 
             import.ReadLine(); //Read the 'Begin Fields' line
             while (!import.IsEnd) {
-                dao.Field fld = idx.CreateField();
+                Microsoft.Office.Interop.Access.Dao.Field fld = idx.CreateField();
                 import.ReadLine();
                 fld.Name = import.PropertyValue();
                 import.ReadLine();
                 fld.Attributes = Convert.ToInt32(import.PropertyValue());
-                ((dao.IndexFields)idx.Fields).Append(fld);
+                ((Microsoft.Office.Interop.Access.Dao.IndexFields)idx.Fields).Append(fld);
                 import.ReadLine(2);  //Skip the 'End Field' line and read the next 'Begin Field' line (or 'End Fields' if there aren't more fields)
             }
             import.ReadLine(2);       //Read the 'End Index' line and the 'Begin Index' or 'End Indexes'
             return idx;
         }
 
-        private bool ExistsTableDef(dao.Database db, string tableName) {
-            foreach (dao.TableDef tbDef in db.TableDefs) {
+        private bool ExistsTableDef(Microsoft.Office.Interop.Access.Dao.Database db, string tableName) {
+            foreach (Microsoft.Office.Interop.Access.Dao.TableDef tbDef in db.TableDefs) {
                 if (string.Compare(tbDef.Name, tableName, true) == 0)
                     return true;
             }
             return false;
         }
 
-        private List<dao.Relation> GetTableRelations(dao.Database db) {
-            List<dao.Relation> result = new List<Relation>();
-            foreach (dao.Relation relation in db.Relations) {
+        private List<Microsoft.Office.Interop.Access.Dao.Relation> GetTableRelations(Microsoft.Office.Interop.Access.Dao.Database db) {
+            List<Microsoft.Office.Interop.Access.Dao.Relation> result = new List<Relation>();
+            foreach (Microsoft.Office.Interop.Access.Dao.Relation relation in db.Relations) {
                 if (relation.Table == this.Name || relation.ForeignTable == this.Name)
                     result.Add(relation);
             }

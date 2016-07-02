@@ -20,7 +20,7 @@ namespace AccessIO {
         /// </summary>
         /// <param name="export">helper class for write objects</param>
         /// <param name="property"><see cref="dao.Property"/> to transform to</param>
-        public virtual void WriteTransform(ExportObject export, dao.Property property) {
+        public virtual void WriteTransform(ExportObject export, Microsoft.Office.Interop.Access.Dao.Property property) {
             try {
                 export.WriteProperty(property.Name, Transform(property));
             } catch {
@@ -56,7 +56,7 @@ namespace AccessIO {
     public class FileNameDataTypeTransform : PropertyTransform {
 
         public override string Transform(object value) {
-            dao.Property property = (dao.Property)value; 
+            Microsoft.Office.Interop.Access.Dao.Property property = (Microsoft.Office.Interop.Access.Dao.Property)value; 
             return String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0},{1}", property.Type , System.IO.Path.GetFileName((string)property.Value));
         }
     }
@@ -79,7 +79,7 @@ namespace AccessIO {
         #region IPropertyTransform Members
 
         public override string Transform(object value) {
-            dao.Property property = (dao.Property)value;
+            Microsoft.Office.Interop.Access.Dao.Property property = (Microsoft.Office.Interop.Access.Dao.Property)value;
             return String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0},{1}", property.Type, property.Value);
         }
 
@@ -96,7 +96,7 @@ namespace AccessIO {
             return String.Empty;
         }
 
-        public override void WriteTransform(ExportObject export, dao.Property property) {
+        public override void WriteTransform(ExportObject export, Microsoft.Office.Interop.Access.Dao.Property property) {
             //write nothing at all
         }
 

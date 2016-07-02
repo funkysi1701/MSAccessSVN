@@ -8,7 +8,7 @@ namespace AccessIO {
     /// </summary>
     public class Index: AuxiliarObject {
 
-        private dao.Index daoIndex;
+        private Microsoft.Office.Interop.Access.Dao.Index daoIndex;
 
         /// <summary>
         /// Constructor
@@ -24,9 +24,9 @@ namespace AccessIO {
                 return this.daoIndex;
             }
             set {
-                if (value != null && !(value is dao.Index))
-                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(dao.Index).Name));
-                this.daoIndex = (dao.Index)value;
+                if (value != null && !(value is Microsoft.Office.Interop.Access.Dao.Index))
+                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(Microsoft.Office.Interop.Access.Dao.Index).Name));
+                this.daoIndex = (Microsoft.Office.Interop.Access.Dao.Index)value;
             }
         }
 
@@ -52,9 +52,9 @@ namespace AccessIO {
             export.WriteProperty("IgnoreNulls", daoIndex.IgnoreNulls);
             export.WriteProperty("Required", daoIndex.Required);
             export.WriteBegin("Fields");
-            dao.IndexFields idxFiels = (dao.IndexFields)daoIndex.Fields;
+            Microsoft.Office.Interop.Access.Dao.IndexFields idxFiels = (Microsoft.Office.Interop.Access.Dao.IndexFields)daoIndex.Fields;
             for (int i = 0; i < idxFiels.Count; i++) {
-                dao.Field fld = (dao.Field)idxFiels[i];
+                Microsoft.Office.Interop.Access.Dao.Field fld = (Microsoft.Office.Interop.Access.Dao.Field)idxFiels[i];
                 export.WriteBegin("Field");
                 export.WriteProperty("Name", fld.Name);
                 export.WriteProperty("Attributes", fld.Attributes); //Descending order (dao.FieldAttributeEnum.dbDescending)

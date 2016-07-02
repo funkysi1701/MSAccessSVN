@@ -5,7 +5,7 @@ using Access = Microsoft.Office.Interop.Access;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
-using dao;
+using Microsoft.Office.Interop.Access.Dao;
 
 namespace AccessIO {
 
@@ -14,14 +14,14 @@ namespace AccessIO {
     /// </summary>
     public class DatabaseDao : Database {
 
-        dao.Database daoDatabase;
+        Microsoft.Office.Interop.Access.Dao.Database daoDatabase;
 
         public override object DaoObject {
             get {
                 return this.daoDatabase;
             }
             set {
-                daoDatabase = (dao.Database)value;
+                daoDatabase = (Microsoft.Office.Interop.Access.Dao.Database)value;
             }
         }
 
@@ -62,7 +62,7 @@ namespace AccessIO {
             MakePath(System.IO.Path.GetDirectoryName(fileName));
 
             //Write the properties with help of an ExportObject
-            dao.Database db = App.Application.CurrentDb();
+            Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
             using (StreamWriter sw = new StreamWriter(fileName)) {
                 ExportObject export = new ExportObject(sw);
                 string dbFileName = System.IO.Path.GetFileName(App.FileName);
@@ -89,8 +89,8 @@ namespace AccessIO {
             propsToWrite.Add("Connection", nullTransform);
             propsToWrite.Add("Version", nullTransform);
 
-            dao.Database db = App.Application.CurrentDb();
-            foreach (dao.Property prop in db.Properties) {
+            Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
+            foreach (Microsoft.Office.Interop.Access.Dao.Property prop in db.Properties) {
                 if (!propsToWrite.ContainsKey(prop.Name)) {
                     propsToWrite.Add(prop.Name, noActionTransform);
                 }
@@ -101,12 +101,12 @@ namespace AccessIO {
         }
         
         protected override void InternalLoad(System.Collections.Generic.Dictionary<string, object> databaseProperties) {
-            dao.Properties daoProperties = (dao.Properties)((dao.Database)DaoObject).Properties;
-            PropertyCollectionDao properties = new PropertyCollectionDao(DaoObject, (dao.Properties)((dao.Database)DaoObject).Properties);
+            Microsoft.Office.Interop.Access.Dao.Properties daoProperties = (Microsoft.Office.Interop.Access.Dao.Properties)((Microsoft.Office.Interop.Access.Dao.Database)DaoObject).Properties;
+            PropertyCollectionDao properties = new PropertyCollectionDao(DaoObject, (Microsoft.Office.Interop.Access.Dao.Properties)((Microsoft.Office.Interop.Access.Dao.Database)DaoObject).Properties);
             foreach (KeyValuePair<string, object> item in databaseProperties) {
 
                 //initialize default values
-                int dataType = (int)dao.DataTypeEnum.dbText;
+                int dataType = (int)Microsoft.Office.Interop.Access.Dao.DataTypeEnum.dbText;
                 string propertyValue = String.Empty;
                 
                 //Split property "value" in dataType,propertyValue. NOTE: In version 1.0, property value only contained the value itself, not the data type
@@ -122,14 +122,14 @@ namespace AccessIO {
                         propertyValue = match.Groups["value"].Value;
 
                     if (propertyValue != String.Empty) {
-                        properties.AddProperty(item.Key, propertyValue, (dao.DataTypeEnum)dataType);
+                        properties.AddProperty(item.Key, propertyValue, (Microsoft.Office.Interop.Access.Dao.DataTypeEnum)dataType);
                     }
                 }
             }
         }
 
         protected override void ClearProperties() {
-            dao.Properties properties = App.Application.CurrentDb().Properties;
+            Microsoft.Office.Interop.Access.Dao.Properties properties = App.Application.CurrentDb().Properties;
 
             //If we delete AccessVersion property the database will be Access 2000 format
             string[] readOnlyProperties = new string[] {    "AccessVersion", "Name", "Connect", 
@@ -137,7 +137,7 @@ namespace AccessIO {
                                                             "QueryTimeout", "Version", "RecordsAffected", 
                                                             "ReplicaID", "DesignMasterID", "Connection" };
 
-            foreach (dao.Property property in properties) {
+            foreach (Microsoft.Office.Interop.Access.Dao.Property property in properties) {
                 try {
                     if (!Array.Exists<string>(readOnlyProperties, p => p.Equals(property.Name)))
                         properties.Delete(property.Name);

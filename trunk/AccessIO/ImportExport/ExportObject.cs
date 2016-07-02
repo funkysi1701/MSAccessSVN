@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using dao;
 
 namespace AccessIO {
 
@@ -104,7 +103,7 @@ namespace AccessIO {
         /// </summary>
         /// <param name="propertyName">name of the property</param>
         /// <param name="value"><see cref="dao.Property"/> property</param>
-        public void WriteProperty(string propertyName, dao.Property value) {
+        public void WriteProperty(string propertyName, Microsoft.Office.Interop.Access.Dao.Property value) {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}{1}:", new String(' ', Indent * TabSize), propertyName);
             if (value != null && value.Value != null)
@@ -141,10 +140,10 @@ namespace AccessIO {
         }
 
         [System.Diagnostics.Conditional("DEBUG")]
-        internal void ListProperties(string objectName, dao.Properties properties) {
+        internal void ListProperties(string objectName, Microsoft.Office.Interop.Access.Dao.Properties properties) {
             System.Diagnostics.Debug.WriteLine(objectName);
             for (int i = 1; i < properties.Count; i++) {
-                dao.Property property = properties[i];
+                Microsoft.Office.Interop.Access.Dao.Property property = properties[i];
                 object value = null;
                 try {
                     value = property.Value;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using dao;
+using Microsoft.Office.Interop.Access.Dao;
 
 namespace AccessIO {
 
@@ -14,7 +14,7 @@ namespace AccessIO {
         /// <summary>
         /// Properties of a dao object like table, field or database
         /// </summary>
-        public dao.Properties Properties { get; private set; }
+        public Microsoft.Office.Interop.Access.Dao.Properties Properties { get; private set; }
 
         /// <summary>
         /// dao object it self
@@ -26,7 +26,7 @@ namespace AccessIO {
         /// </summary>
         /// <param name="daoObject">dao object like a field, table or database</param>
         /// <param name="properties">The Properties property of <paramref name="daoObject"/> object</param>
-        public PropertyCollectionDao(object daoObject, dao.Properties properties) {
+        public PropertyCollectionDao(object daoObject, Microsoft.Office.Interop.Access.Dao.Properties properties) {
             if (daoObject == null)
                 throw new ArgumentNullException("daoObject");
             if (properties == null)
@@ -45,7 +45,7 @@ namespace AccessIO {
         /// Adding a property to a dao object is trickly: if the property is already added we assign de value
         /// else, we create the property and add to the properties collection
         /// </remarks>
-        public void AddOptionalProperty(Dictionary<string, object> props, string propertyName, dao.DataTypeEnum dataType) {
+        public void AddOptionalProperty(Dictionary<string, object> props, string propertyName, Microsoft.Office.Interop.Access.Dao.DataTypeEnum dataType) {
             if (props.ContainsKey(propertyName) && props[propertyName] != null) {
                 AddProperty(propertyName, props[propertyName], dataType);
             }
@@ -57,7 +57,7 @@ namespace AccessIO {
         /// <param name="propertyName">Name of the property</param>
         /// <param name="propertyValue">Value of the property</param>
         /// <param name="dataType">Data type: used in case of is needed to add the property to the property collection</param>
-        public void AddProperty(string propertyName, object propertyValue, dao.DataTypeEnum dataType) {
+        public void AddProperty(string propertyName, object propertyValue, Microsoft.Office.Interop.Access.Dao.DataTypeEnum dataType) {
             try {
                 Properties[propertyName].Value = propertyValue;
             } catch (System.Runtime.InteropServices.COMException ex) {
@@ -65,7 +65,7 @@ namespace AccessIO {
                     object[] parameters = new object[] { propertyName, dataType, propertyValue };
                     //All the dao objects implements a interface with CreateProperty method. But all of them are diferent interfaces: there isn't a common interface
                     //Calling InvokeMember we can do a generic code to call CreateProperty of al the objects
-                    Properties.Append((dao.Property)(DaoObject.GetType().InvokeMember("CreateProperty", System.Reflection.BindingFlags.InvokeMethod, null, DaoObject, parameters)));
+                    Properties.Append((Microsoft.Office.Interop.Access.Dao.Property)(DaoObject.GetType().InvokeMember("CreateProperty", System.Reflection.BindingFlags.InvokeMethod, null, DaoObject, parameters)));
                 } else if (ex.ErrorCode == -2146825287) {   //Argument not valid
                     //Can't add a property: This will occur with CollatingOrderProperty
                     //Other properties are excluded from DatabaseDao.gatherProperties method
@@ -83,7 +83,7 @@ namespace AccessIO {
 
         public bool HasProperty(string propertyName) {
             try {
-                dao.Property property = Properties[propertyName];
+                Microsoft.Office.Interop.Access.Dao.Property property = Properties[propertyName];
                 return true;
             } catch {
                 return false;
@@ -94,7 +94,7 @@ namespace AccessIO {
             return (HasProperty(propertyName) && PropertyHasValue(Properties[propertyName]));
         }
 
-        public bool PropertyHasValue(dao.Property property) {
+        public bool PropertyHasValue(Microsoft.Office.Interop.Access.Dao.Property property) {
             try {
                 object dummy = property.Value;
                 return true;

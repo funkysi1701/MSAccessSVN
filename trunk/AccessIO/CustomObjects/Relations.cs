@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using dao;
 
 namespace AccessIO {
     /// <summary>
@@ -10,7 +9,7 @@ namespace AccessIO {
     /// </summary>
     public class Relations : CustomObject {
 
-        dao.Relations relations;
+        Microsoft.Office.Interop.Access.Dao.Relations relations;
 
         public Relations(AccessApp app, string name, ObjectType objectType) : base(app, name, objectType) { }
 
@@ -21,17 +20,17 @@ namespace AccessIO {
             using (StreamWriter sw = new StreamWriter(fileName)) {
                 ExportObject export = new ExportObject(sw);
 
-                dao.Database db = App.Application.CurrentDb();
+                Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
 
                 export.WriteBegin(ClassName);
-                foreach (dao.Relation relation in db.Relations) {
+                foreach (Microsoft.Office.Interop.Access.Dao.Relation relation in db.Relations) {
                     export.WriteBegin("Relation", relation.Name);
                     export.WriteProperty("Attributes", relation.Attributes);
                     export.WriteProperty("ForeignTable", relation.ForeignTable);
                     export.WriteProperty("Table", relation.Table);
                     //try { export.WriteProperty("PartialReplica", relation.PartialReplica); } catch { }      //Accessing this property causes an exception ¿?
                     export.WriteBegin("Fields");
-                    foreach (dao.Field fld in relation.Fields) {
+                    foreach (Microsoft.Office.Interop.Access.Dao.Field fld in relation.Fields) {
                         export.WriteBegin("Field");
                         export.WriteProperty("Name", fld.Name);
                         export.WriteProperty("ForeignName", fld.ForeignName);
@@ -48,9 +47,9 @@ namespace AccessIO {
         public override void Load(string fileName) {
 
             //Delete first the existent relations
-            dao.Database db = App.Application.CurrentDb();
-            dao.Relations relations = db.Relations;
-            foreach (dao.Relation item in relations) {
+            Microsoft.Office.Interop.Access.Dao.Database db = App.Application.CurrentDb();
+            Microsoft.Office.Interop.Access.Dao.Relations relations = db.Relations;
+            foreach (Microsoft.Office.Interop.Access.Dao.Relation item in relations) {
                 relations.Delete(item.Name);
             }
             relations.Refresh();
@@ -63,7 +62,7 @@ namespace AccessIO {
                     string relationName = import.PeekObjectName();
                     Dictionary<string, object> relationProperties = import.ReadProperties();
 
-                    dao.Relation relation = db.CreateRelation(relationName);
+                    Microsoft.Office.Interop.Access.Dao.Relation relation = db.CreateRelation(relationName);
                     relation.Attributes = Convert.ToInt32(relationProperties["Attributes"]);
                     relation.ForeignTable = Convert.ToString(relationProperties["ForeignTable"]);
                     relation.Table = Convert.ToString(relationProperties["Table"]);
@@ -71,7 +70,7 @@ namespace AccessIO {
 
                     import.ReadLine(2);         //Read 'Begin Fields' and 'Begin Field' lines
                     while (!import.IsEnd) {
-                        dao.Field field = relation.CreateField();
+                        Microsoft.Office.Interop.Access.Dao.Field field = relation.CreateField();
                         field.Name = import.PropertyValue();
                         import.ReadLine();
                         field.ForeignName = import.PropertyValue();
@@ -102,9 +101,9 @@ namespace AccessIO {
                 return this.relations;
             }
             set {
-                if (value != null && !(value is dao.Relations))
-                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(dao.Relations).Name));
-                relations = (dao.Relations)value;
+                if (value != null && !(value is Microsoft.Office.Interop.Access.Dao.Relations))
+                    throw new ArgumentException(String.Format(AccessIO.Properties.Resources.DaoObjectIsNotAValidType, typeof(Microsoft.Office.Interop.Access.Dao.Relations).Name));
+                relations = (Microsoft.Office.Interop.Access.Dao.Relations)value;
             }
         }
 

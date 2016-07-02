@@ -6,12 +6,12 @@ using Access = Microsoft.Office.Interop.Access;
 namespace AccessIO {
     public class AccessMdb : AccessApp {
         
-        private dao.Database database;
+        private Microsoft.Office.Interop.Access.Dao.Database database;
 
         /// <summary>
         /// Underlying <see cref="dao.Database"/> object
         /// </summary>
-        public dao.Database Database {
+        public Microsoft.Office.Interop.Access.Dao.Database Database {
             get {
                 if (database == null)
                     database = Application.CurrentDb();
@@ -72,8 +72,8 @@ namespace AccessIO {
                 lst.Add(new ObjectOptions(Properties.Resources.References, ObjectType.References));
                 lst.Add(new ObjectOptions(Properties.Resources.Relations, ObjectType.Relations));
             } else if (IsStandardContainerName(container.InvariantName)) {
-                dao.Container daoContainer = Database.Containers[container.InvariantName];
-                foreach (dao.Document doc in daoContainer.Documents) {
+                Microsoft.Office.Interop.Access.Dao.Container daoContainer = Database.Containers[container.InvariantName];
+                foreach (Microsoft.Office.Interop.Access.Dao.Document doc in daoContainer.Documents) {
                     lst.Add(new ObjectOptions(doc.Name, container.DefaultObjectType));
                 }
             } else {
@@ -117,7 +117,7 @@ namespace AccessIO {
 
         private IEnumerable<IObjecOptions> GetQueries() {
             List<IObjecOptions> lst = new List<IObjecOptions>();
-            foreach (dao.QueryDef qry in Database.QueryDefs) {
+            foreach (Microsoft.Office.Interop.Access.Dao.QueryDef qry in Database.QueryDefs) {
                 if (qry.Name[0] != tempPrefix) {
                     lst.Add(new ObjectOptions(qry.Name, ObjectType.Query));
                 }
@@ -128,7 +128,7 @@ namespace AccessIO {
         private IEnumerable<IObjecOptions> GetTables() {
             const int systemTable = -2147483648;
             List<IObjecOptions> lst = new List<IObjecOptions>();
-            foreach (dao.TableDef tableDef in Database.TableDefs) {
+            foreach (Microsoft.Office.Interop.Access.Dao.TableDef tableDef in Database.TableDefs) {
                 bool isSystemTable = tableDef.Attributes == 2 || tableDef.Attributes == systemTable;
                 isSystemTable = isSystemTable || (tableDef.Name[0] == tempPrefix);
                 if (!isSystemTable) {
@@ -143,7 +143,7 @@ namespace AccessIO {
             //TODO: Check for password protected databases
             //TODO: Check for databases attached to workgroup database
             string fullFileName = System.IO.Path.GetFullPath(FileName);
-            dao.Database db = Application.DBEngine.OpenDatabase(System.IO.Path.GetFullPath(fullFileName));
+            Microsoft.Office.Interop.Access.Dao.Database db = Application.DBEngine.OpenDatabase(System.IO.Path.GetFullPath(fullFileName));
             try {
                 if (double.Parse(db.Version, System.Globalization.CultureInfo.InvariantCulture) < 4.0)
                     throw new Exception(Properties.ImportRes.InvalidFileFormat);
@@ -168,7 +168,7 @@ namespace AccessIO {
             //TODO: Add support for Access Version, ¿password, encryption?
             Locales databaseLocales = new Locales();
             string collating = databaseProperties["CollatingOrder"].ToString().Substring(2);
-            dao.Database db = Application.DBEngine.CreateDatabase(FileName, databaseLocales[collating]);
+            Microsoft.Office.Interop.Access.Dao.Database db = Application.DBEngine.CreateDatabase(FileName, databaseLocales[collating]);
             db.Close();
             System.Runtime.InteropServices.Marshal.ReleaseComObject(db);
             Application.OpenCurrentDatabase(FileName);
